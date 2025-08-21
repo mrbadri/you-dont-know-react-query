@@ -162,10 +162,7 @@ export function useCustomHook() {
 
 
 ## منابع و کدها  
-عالی 👌 برای این پست سه بخش منابع رو می‌تونی بذاری:  
 
-
-### 📌 منابع اصلی و مرتبط  
 - **React Query v5 – Migration Guide**  
   https://tanstack.com/query/v5/docs/framework/react/guides/migrating-to-v5  
 
