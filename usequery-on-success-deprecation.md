@@ -1,4 +1,5 @@
-# Goodbye onSuccess in useQuery (React Query v5)  
+# Goodbye onSuccess in useQuery (React Query v5) 
+<img width="100%"  alt="image" src="https://github.com/user-attachments/assets/a550ef8b-8b33-442d-849e-e379c264e1a5" />
 
 ## Introduction  
 In version 5 of **React Query**, the `onSuccess` option was removed from `useQuery`.  
