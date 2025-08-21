@@ -1,36 +1,31 @@
-
-# خداحافظ onSuccess در useQuery (React Query v5)
+# Goodbye onSuccess in useQuery (React Query v5) 
 <img width="100%"  alt="image" src="https://github.com/user-attachments/assets/a550ef8b-8b33-442d-849e-e379c264e1a5" />
 
-
-## مقدمه  
-در نسخه ۵ کتابخانه‌ی **React Query**، متد `onSuccess` از `useQuery` حذف شد.  
-دلیل این تغییر جلوگیری از قاطی شدن منطق UI با منطق API و کش بود (**Violation of Separation of Concerns**).  
-
+## Introduction  
+In version 5 of **React Query**, the `onSuccess` option was removed from `useQuery`.  
+The reason for this change was to prevent mixing UI logic with API and cache logic (**Violation of Separation of Concerns**).  
 
 
-## مشکل onSuccess  
-- قاطی شدن منطق UI با API و کش  
-- اجرا نشدن در بعضی شرایط (مثل وقتی داده از کش می‌آید و `staleTime` فعال است)  
-- اجرا شدن چندباره ناخواسته وقتی یک کوئری در چند کامپوننت استفاده شود  
-- نوتیفیکیشن‌ها چند بار پشت‌سرهم نمایش داده می‌شوند  
-- سخت شدن تست و نگهداری کد  
-- ایجاد درخواست‌های اضافی یا side-effectهای تکراری  
-- تجربه کاربری بد و دیباگ سخت‌تر  
+## Problems with onSuccess  
+- Mixing UI logic with API and cache logic  
+- Not being triggered in some cases (for example, when data comes from cache with `staleTime` set)  
+- Being triggered multiple times when the same query is used in several components  
+- Notifications being displayed repeatedly  
+- Harder to test and maintain the code  
+- Extra requests or repeated side-effects  
+- Poor user experience and harder debugging  
 
 
+## React Query Team Recommendation  
+The React Query team recommends using the **Service Layer Pattern** and keeping layers separated:  
 
-## پیشنهاد تیم React Query  
-تیم React Query توصیه می‌کند از **Service Layer Pattern** استفاده کنید و لایه‌ها را از هم جدا نگه دارید:  
-
-1. **Service Layer** → فقط فراخوانی شبکه و شکل‌دهی داده  
-2. **API Hook Layer** → فقط کش و state با `useQuery` (بدون side effectهای UI)  
-3. **Page Hook Layer** → منطق صفحه مثل toast، redirect یا chain call  
-4. **UI Layer** → فقط نمایش داده  
-
+1. **Service Layer** → only network calls and data shaping  
+2. **API Hook Layer** → only cache and state with `useQuery` (without UI side effects)  
+3. **Page Hook Layer** → page-specific logic such as toast, redirect, or chain calls  
+4. **UI Layer** → only rendering data  
 
 
-## نمونه کد  
+## Code Example  
 
 ### Service Layer  
 ```ts
@@ -80,14 +75,12 @@ export function UsersPage() {
 ```
 
 
-
-## مشکل مخفی در isSuccess  
-اگر یک کاستوم‌هوک بسازید که در یک صفحه چند بار استفاده می‌شود، هر بار `isSuccess` می‌تواند افکت را دوباره اجرا کند.  
-🔑 راه‌حل: استفاده از یک مارکر در کش React Query.  
-
+## The Hidden Problem with isSuccess  
+If you build a custom hook that’s used multiple times on the same page, each consumer of `isSuccess` can trigger the effect again.  
+🔑 Solution: keep a marker in the React Query cache.  
 
 
-## جلوگیری از افکت‌های تکراری  
+## Preventing Duplicate Effects  
 
 ```ts
 // useOnSuccessOnce.ts
@@ -112,7 +105,7 @@ export function useOnSuccessOnce({
   useEffect(() => {
     if (!isSuccess || !updatedAt || !fn) return;
     const last = qc.getQueryData<number>(markKey(id));
-    if (last === updatedAt) return; // قبلاً اجرا شده
+    if (last === updatedAt) return; // already executed
     qc.setQueryData(markKey(id), updatedAt);
     fn();
   }, [id, isSuccess, updatedAt, fn, qc]);
@@ -120,8 +113,7 @@ export function useOnSuccessOnce({
 ```
 
 
-
-## نحوه استفاده  
+## Usage  
 
 ```ts
 // useCustomHook.ts
@@ -153,16 +145,13 @@ export function useCustomHook() {
 ```
 
 
-
-## جمع‌بندی  
-- `onSuccess` در نسخه‌ی ۵ React Query حذف شد.  
-- به‌جای آن منطق را در لایه‌های جدا (Service, API Hook, Page Hook, UI) پیاده‌سازی کنید.  
-- برای جلوگیری از افکت‌های تکراری، از **مارکر کش** یا هوک کمکی مثل `useOnSuccessOnce` استفاده کنید.  
-
+## Conclusion  
+- `onSuccess` was removed in React Query v5.  
+- Instead, separate logic into distinct layers (Service, API Hook, Page Hook, UI).  
+- To prevent duplicate effects, use a **cache marker** or a helper hook like `useOnSuccessOnce`.  
 
 
-## منابع و کدها  
-
+## References and Code  
 - **React Query v5 – Migration Guide**  
   https://tanstack.com/query/v5/docs/framework/react/guides/migrating-to-v5  
 
@@ -172,3 +161,6 @@ export function useCustomHook() {
 - **GitHub Discussion: Why onSuccess/onError were removed**  
   https://github.com/TanStack/query/discussions/5175  
 
+
+---
+[⬅ Back to Notes](../README.md)
